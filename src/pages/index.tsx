@@ -23,7 +23,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
+      <main className="container mx-auto flex flex-col items-center justify-center h-screen p-4">
         <App />
       </main>
     </>
@@ -32,38 +32,40 @@ export default function Home() {
 
 function App() {
   const { gridSize, ...gridConfig } = useControls({
-    gridSize: [10.5, 10.5],
-    cellSize: { value: 0.6, min: 0, max: 10, step: 0.1 },
+    gridSize: [8, 24],
+    cellSize: { value: 1, min: 0, max: 10, step: 0.1 },
     cellThickness: { value: 1, min: 0, max: 5, step: 0.1 },
     cellColor: "#6f6f6f",
-    sectionSize: { value: 3.3, min: 0, max: 10, step: 0.1 },
-    sectionThickness: { value: 1.5, min: 0, max: 5, step: 0.1 },
+    sectionSize: { value: 1, min: 0, max: 10, step: 0.1 },
+    sectionThickness: { value: 1, min: 0, max: 5, step: 0.1 },
     sectionColor: "#9d4b4b",
-    fadeDistance: { value: 25, min: 0, max: 100, step: 1 },
-    fadeStrength: { value: 1, min: 0, max: 1, step: 0.1 },
+    fadeDistance: { value: 100, min: 0, max: 100, step: 1 },
+    fadeStrength: { value: 0, min: 0, max: 1, step: 0.1 },
     followCamera: false,
-    infiniteGrid: true,
+    infiniteGrid: false,
   });
+
+  const { time, day } = useControls({
+    time: 0,
+    day: 0,
+  });
+
   return (
     <Canvas shadows camera={{ position: [10, 12, 12], fov: 25 }}>
-      <group position={[0, -0.5, 0]}>
-        <Center top>
-          <Suzi rotation={[-0.63, 0, 0]} scale={2} />
-        </Center>
-        <Center top position={[-2, 0, 2]}>
-          <mesh castShadow>
-            <sphereGeometry args={[0.5, 64, 64]} />
-            <meshStandardMaterial color="#9d4b4b" />
-          </mesh>
-        </Center>
-        <Center top position={[2.5, 0, 1]}>
-          <mesh castShadow rotation={[0, Math.PI / 4, 0]}>
-            <boxGeometry args={[0.7, 0.7, 0.7]} />
+      <group position={[0, 0, 0]}>
+        <Center top position={[(day * 24) / 7 - 12, 0, time - 11.5]}>
+          <mesh castShadow rotation={[0, 0, 0]}>
+            <boxGeometry args={[24 / 7, 1, 1]} />
             <meshStandardMaterial color="#9d4b4b" />
           </mesh>
         </Center>
         <Shadows />
-        <Grid position={[0, -0.01, 0]} args={gridSize} {...gridConfig} />
+        <Grid
+          position={[0, 0, 0]}
+          args={gridSize}
+          {...gridConfig}
+          scale={[24 / 7, 1, 1]}
+        />
       </group>
       <OrbitControls makeDefault />
       <Environment preset="city" />
@@ -77,7 +79,7 @@ function App() {
   );
 }
 
-const Shadows = memo(() => (
+const Shadows = () => (
   <AccumulativeShadows
     temporal
     frames={100}
@@ -88,15 +90,4 @@ const Shadows = memo(() => (
   >
     <RandomizedLight amount={8} radius={4} position={[5, 5, -10]} />
   </AccumulativeShadows>
-));
-
-function Suzi(props) {
-  const { nodes } = useGLTF(
-    "https://market-assets.fra1.cdn.digitaloceanspaces.com/market-assets/models/suzanne-high-poly/model.gltf"
-  );
-  return (
-    <mesh castShadow receiveShadow geometry={nodes.Suzanne.geometry} {...props}>
-      <meshStandardMaterial color="#9d4b4b" />
-    </mesh>
-  );
-}
+);
