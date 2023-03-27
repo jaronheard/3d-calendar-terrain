@@ -1,9 +1,18 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import Head from "next/head";
+import { memo } from "react";
+import { Canvas } from "@react-three/fiber";
+import {
+  Grid,
+  Center,
+  GizmoHelper,
+  GizmoViewport,
+  AccumulativeShadows,
+  RandomizedLight,
+  OrbitControls,
+  Environment,
+  useGLTF,
+} from "@react-three/drei";
+import { useControls } from "leva";
 
 export default function Home() {
   return (
@@ -14,110 +23,80 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
+      <main>
+        <App />
       </main>
     </>
-  )
+  );
+}
+
+function App() {
+  const { gridSize, ...gridConfig } = useControls({
+    gridSize: [10.5, 10.5],
+    cellSize: { value: 0.6, min: 0, max: 10, step: 0.1 },
+    cellThickness: { value: 1, min: 0, max: 5, step: 0.1 },
+    cellColor: "#6f6f6f",
+    sectionSize: { value: 3.3, min: 0, max: 10, step: 0.1 },
+    sectionThickness: { value: 1.5, min: 0, max: 5, step: 0.1 },
+    sectionColor: "#9d4b4b",
+    fadeDistance: { value: 25, min: 0, max: 100, step: 1 },
+    fadeStrength: { value: 1, min: 0, max: 1, step: 0.1 },
+    followCamera: false,
+    infiniteGrid: true,
+  });
+  return (
+    <Canvas shadows camera={{ position: [10, 12, 12], fov: 25 }}>
+      <group position={[0, -0.5, 0]}>
+        <Center top>
+          <Suzi rotation={[-0.63, 0, 0]} scale={2} />
+        </Center>
+        <Center top position={[-2, 0, 2]}>
+          <mesh castShadow>
+            <sphereGeometry args={[0.5, 64, 64]} />
+            <meshStandardMaterial color="#9d4b4b" />
+          </mesh>
+        </Center>
+        <Center top position={[2.5, 0, 1]}>
+          <mesh castShadow rotation={[0, Math.PI / 4, 0]}>
+            <boxGeometry args={[0.7, 0.7, 0.7]} />
+            <meshStandardMaterial color="#9d4b4b" />
+          </mesh>
+        </Center>
+        <Shadows />
+        <Grid position={[0, -0.01, 0]} args={gridSize} {...gridConfig} />
+      </group>
+      <OrbitControls makeDefault />
+      <Environment preset="city" />
+      <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+        <GizmoViewport
+          axisColors={["#9d4b4b", "#2f7f4f", "#3b5b9d"]}
+          labelColor="white"
+        />
+      </GizmoHelper>
+    </Canvas>
+  );
+}
+
+const Shadows = memo(() => (
+  <AccumulativeShadows
+    temporal
+    frames={100}
+    color="#9d4b4b"
+    colorBlend={0.5}
+    alphaTest={0.9}
+    scale={20}
+  >
+    <RandomizedLight amount={8} radius={4} position={[5, 5, -10]} />
+  </AccumulativeShadows>
+));
+
+function Suzi(props) {
+  const { nodes } = useGLTF(
+    "https://market-assets.fra1.cdn.digitaloceanspaces.com/market-assets/models/suzanne-high-poly/model.gltf"
+  );
+  return (
+    <mesh castShadow receiveShadow geometry={nodes.Suzanne.geometry} {...props}>
+      <meshStandardMaterial color="#9d4b4b" />
+    </mesh>
+  );
 }
