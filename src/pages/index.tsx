@@ -85,7 +85,7 @@ function App() {
             >
               <mesh castShadow rotation={[0, 0, 0]}>
                 <boxGeometry args={[24 / 7, 1, durationInHours]} />
-                <meshStandardMaterial color="#9d4b4b" />
+                <meshPhysicalMaterial color="#9d4b4b" />
               </mesh>
             </Center>
           );
