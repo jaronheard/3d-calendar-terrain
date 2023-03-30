@@ -72,11 +72,6 @@ function App() {
     infiniteGrid: false,
   });
 
-  const { time, day } = useControls({
-    time: 0,
-    day: 0,
-  });
-
   return (
     <Canvas shadows camera={{ position: [10, 12, 12], fov: 25 }}>
       <group position={[0, 0, 0]}>
