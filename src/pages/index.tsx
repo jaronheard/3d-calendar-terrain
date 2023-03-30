@@ -10,9 +10,36 @@ import {
   RandomizedLight,
   OrbitControls,
   Environment,
-  useGLTF,
 } from "@react-three/drei";
 import { useControls } from "leva";
+import calendar from "../data/calendar.json";
+
+type eventType = {
+  start: {
+    dateTime: string;
+  };
+  end: {
+    dateTime: string;
+  };
+};
+
+const getEventTime = (event: eventType) => {
+  // only designed for events that start and end on the same day
+
+  const startDate = new Date(event.start.dateTime);
+  const startDay = startDate.getDay();
+  const startHour = startDate.getHours();
+
+  const endDate = new Date(event.end.dateTime);
+  const endDay = endDate.getDay();
+  const endHour = endDate.getHours();
+
+  // calculate the duration of the event
+  const duration = endDate.getTime() - startDate.getTime();
+  const durationInHours = duration / (1000 * 60 * 60);
+
+  return { startDay, startHour, endDay, endHour, durationInHours };
+};
 
 export default function Home() {
   return (
@@ -53,12 +80,21 @@ function App() {
   return (
     <Canvas shadows camera={{ position: [10, 12, 12], fov: 25 }}>
       <group position={[0, 0, 0]}>
-        <Center top position={[(day * 24) / 7 - 12, 0, time - 11.5]}>
-          <mesh castShadow rotation={[0, 0, 0]}>
-            <boxGeometry args={[24 / 7, 1, 1]} />
-            <meshStandardMaterial color="#9d4b4b" />
-          </mesh>
-        </Center>
+        {calendar.items.map((event) => {
+          const { startDay, startHour, durationInHours } = getEventTime(event);
+          return (
+            <Center
+              key={event.id}
+              top
+              position={[(startDay * 24) / 7 - 12, 0, startHour - 11.5]}
+            >
+              <mesh castShadow rotation={[0, 0, 0]}>
+                <boxGeometry args={[24 / 7, 1, durationInHours]} />
+                <meshStandardMaterial color="#9d4b4b" />
+              </mesh>
+            </Center>
+          );
+        })}
         <Shadows />
         <Grid
           position={[0, 0, 0]}
